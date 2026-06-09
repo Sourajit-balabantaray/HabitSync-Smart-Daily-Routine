@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine - Now</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="now-topbar">
+      <div>
+        <p class="eyebrow">Today at a glance</p>
+        <h1>Your time blocks</h1>
+        <p class="subtitle">View and manage your daily routines by time of day.</p>
+      </div>
+      
+    </header>
+
+    <section class="panel dashboard-panel">
+      <div class="dashboard-topbar">
+        <div>
+          <p class="eyebrow">Dashboard</p>
+          <h2>Jump to any block</h2>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <a href="timeline.html" class="dashboard-link">Preplanner</a>
+        <a href="now.html" class="dashboard-link">Time Blocks</a>
+        <a href="planner.html" class="dashboard-link">Routine Planner</a>
+        <a href="habit.html" class="dashboard-link">Habit Manager</a>
+        <a href="streak.html" class="dashboard-link">Daily Streak</a>
+        <a href="home.html" class="dashboard-link">Pomodoro Focus</a>
+      </div>
+    </section>
+
+    <main class="timeblocks-grid">
+      <!-- Morning Block -->
+      <section class="timeblock morning-block">
+        <div class="timeblock-header">
+          <h2>Morning</h2>
+          <span class="timeblock-time">5:00 - 12:00</span>
+        </div>
+
+        <div class="tasks-container">
+          <div class="task-card study" id="morningStudyCard" role="button" tabindex="0" aria-label="Open Morning Study details">
+            <div class="task-icon">📚</div>
+            <div class="task-content">
+              <h3>Study</h3>
+              <p>Focus session</p>
+            </div>
+    <button class="update-btn" type="button" id="morningStudyCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card workout" id="morningWorkoutCard" role="button" tabindex="0" aria-label="Open Morning Workout details">
+            <div class="task-icon">🏋️</div>
+            <div class="task-content">
+              <h3>Workout</h3>
+              <p>Morning exercise</p>
+            </div>
+    <button class="update-btn" type="button" id="morningWorkoutCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card relax" id="morningRelaxCard" role="button" tabindex="0" aria-label="Open Morning Relax details">
+            <div class="task-icon">☕</div>
+            <div class="task-content">
+              <h3>Relax</h3>
+              <p>Morning meditation</p>
+            </div>
+    <button class="update-btn" type="button" id="morningRelaxCardUpdate">Update</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Afternoon Block -->
+      <section class="timeblock afternoon-block">
+        <div class="timeblock-header">
+          <h2>Afternoon</h2>
+          <span class="timeblock-time">12:00 - 17:00</span>
+        </div>
+
+        <div class="tasks-container">
+          <div class="task-card study" id="afternoonStudyCard" role="button" tabindex="0" aria-label="Open Afternoon Study details">
+            <div class="task-icon">📚</div>
+            <div class="task-content">
+              <h3>Study</h3>
+              <p>Deep work session</p>
+            </div>
+    <button class="update-btn" type="button" id="afternoonStudyCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card workout" id="afternoonWorkoutCard" role="button" tabindex="0" aria-label="Open Afternoon Workout details">
+            <div class="task-icon">🏋️</div>
+            <div class="task-content">
+              <h3>Workout</h3>
+              <p>Afternoon training</p>
+            </div>
+    <button class="update-btn" type="button" id="afternoonWorkoutCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card relax" id="afternoonRelaxCard" role="button" tabindex="0" aria-label="Open Afternoon Relax details">
+            <div class="task-icon">☕</div>
+            <div class="task-content">
+              <h3>Relax</h3>
+              <p>Break & lunch</p>
+            </div>
+    <button class="update-btn" type="button" id="afternoonRelaxCardUpdate">Update</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Evening Block -->
+      <section class="timeblock evening-block">
+        <div class="timeblock-header">
+          <h2>Evening</h2>
+          <span class="timeblock-time">17:00 - 23:00</span>
+        </div>
+
+        <div class="tasks-container">
+          <div class="task-card study" id="eveningStudyCard" role="button" tabindex="0" aria-label="Open Evening Study details">
+            <div class="task-icon">📚</div>
+            <div class="task-content">
+              <h3>Study</h3>
+              <p>Learning & review</p>
+            </div>
+    <button class="update-btn" type="button" id="eveningStudyCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card workout" id="eveningWorkoutCard" role="button" tabindex="0" aria-label="Open Evening Workout details">
+            <div class="task-icon">🏋️</div>
+            <div class="task-content">
+              <h3>Workout</h3>
+              <p>Evening workout</p>
+            </div>
+    <button class="update-btn" type="button" id="eveningWorkoutCardUpdate">Update</button>
+          </div>
+
+          <div class="task-card relax" id="eveningRelaxCard" role="button" tabindex="0" aria-label="Open Evening Relax details">
+            <div class="task-icon">☕</div>
+            <div class="task-content">
+              <h3>Relax</h3>
+              <p>Wind down</p>
+            </div>
+    <button class="update-btn" type="button" id="eveningRelaxCardUpdate">Update</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    function wireCard(cardId, targetPage) {
+      const el = document.getElementById(cardId);
+      if (!el) return;
+
+      el.style.cursor = "pointer";
+      const go = () => window.location.href = targetPage;
+      el.addEventListener("click", go);
+      el.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
+    }
+
+    const morningStudyCard = document.getElementById("morningStudyCard");
+    if (morningStudyCard) {
+      morningStudyCard.style.cursor = "pointer";
+
+      const go = () => window.location.href = "morning-study.html";
+      morningStudyCard.addEventListener("click", go);
+      morningStudyCard.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
+    }
+
+    const morningWorkoutCard = document.getElementById("morningWorkoutCard");
+    if (morningWorkoutCard) {
+      morningWorkoutCard.style.cursor = "pointer";
+
+      const go = () => window.location.href = "morning-workout.html";
+      morningWorkoutCard.addEventListener("click", go);
+      morningWorkoutCard.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
+    }
+
+    const morningRelaxCard = document.getElementById("morningRelaxCard");
+    if (morningRelaxCard) {
+      morningRelaxCard.style.cursor = "pointer";
+
+      const go = () => window.location.href = "morning-relax.html";
+      morningRelaxCard.addEventListener("click", go);
+      morningRelaxCard.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      });
+    }
+
+    wireCard("afternoonStudyCard", "afternoon-study.html");
+    wireCard("afternoonWorkoutCard", "afternoon-workout.html");
+    wireCard("afternoonRelaxCard", "afternoon-relax.html");
+    wireCard("eveningStudyCard", "evening-study.html");
+    wireCard("eveningWorkoutCard", "evening-workout.html");
+    wireCard("eveningRelaxCard", "evening-relax.html");
+  
+    const TIMEBLOCK_STORAGE_KEY = "habitSyncTimeblocks:v1";
+    const timeblockDefaults = {
+      morningStudyCard: { title: "Study", description: "Focus session" },
+      morningWorkoutCard: { title: "Workout", description: "Morning exercise" },
+      morningRelaxCard: { title: "Relax", description: "Morning meditation" },
+      afternoonStudyCard: { title: "Study", description: "Deep work session" },
+      afternoonWorkoutCard: { title: "Workout", description: "Afternoon training" },
+      afternoonRelaxCard: { title: "Relax", description: "Break & lunch" },
+      eveningStudyCard: { title: "Study", description: "Learning & review" },
+      eveningWorkoutCard: { title: "Workout", description: "Evening workout" },
+      eveningRelaxCard: { title: "Relax", description: "Wind down" }
+    };
+
+    function loadTimeblockData() {
+      try {
+        const raw = localStorage.getItem(TIMEBLOCK_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveTimeblockData(data) {
+      localStorage.setItem(TIMEBLOCK_STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function applyTimeblockData(cardId, cardData) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+      const titleEl = card.querySelector('.task-content h3');
+      const descEl = card.querySelector('.task-content p');
+      if (titleEl) titleEl.textContent = cardData.title;
+      if (descEl) descEl.textContent = cardData.description;
+    }
+
+    function renderTimeblocks() {
+      const stored = loadTimeblockData();
+      Object.keys(timeblockDefaults).forEach((cardId) => {
+        const data = { ...timeblockDefaults[cardId], ...(stored[cardId] || {}) };
+        applyTimeblockData(cardId, data);
+      });
+    }
+
+    function updateTimeblock(cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const currentTitle = card.querySelector('.task-content h3')?.textContent || '';
+      const currentDescription = card.querySelector('.task-content p')?.textContent || '';
+      const newTitle = window.prompt('Update routine name', currentTitle);
+      if (newTitle === null) return;
+      const newDescription = window.prompt('Update routine details', currentDescription);
+      if (newDescription === null) return;
+
+      const stored = loadTimeblockData();
+      stored[cardId] = {
+        title: newTitle.trim() || currentTitle,
+        description: newDescription.trim() || currentDescription
+      };
+      saveTimeblockData(stored);
+      applyTimeblockData(cardId, stored[cardId]);
+    }
+
+    function initTimeblockUpdateButtons() {
+      Object.keys(timeblockDefaults).forEach((cardId) => {
+        const button = document.getElementById(`${cardId}Update`);
+        if (!button) return;
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          updateTimeblock(cardId);
+        });
+      });
+    }
+
+    const REMINDER_STORAGE_KEY = "habitSyncReminders:v1";
+    const reminderSchedule = [
+      { time: "12:00", title: "Morning block complete", message: "Morning block is done. Start your afternoon routines now." },
+      { time: "17:00", title: "Afternoon block complete", message: "Afternoon block is done. Time to switch to evening routines." },
+      { time: "23:00", title: "Evening block complete", message: "Evening block is done. Wind down and get ready for rest." }
+    ];
+
+    function getTodayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function loadReminderState() {
+      const today = getTodayKey();
+      try {
+        const raw = localStorage.getItem(REMINDER_STORAGE_KEY);
+        const state = raw ? JSON.parse(raw) : null;
+        if (!state || state.date !== today) {
+          return { date: today, triggered: [] };
+        }
+        return state;
+      } catch {
+        return { date: today, triggered: [] };
+      }
+    }
+
+    function saveReminderState(state) {
+      localStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function showReminder(title, message) {
+      if (window.Notification && Notification.permission === "granted") {
+        new Notification(title, { body: message });
+        return;
+      }
+
+      if (window.Notification && Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification(title, { body: message });
+          } else {
+            window.alert(`${title}: ${message}`);
+          }
+        });
+        return;
+      }
+
+      window.alert(`${title}: ${message}`);
+    }
+
+    function checkReminders() {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const state = loadReminderState();
+
+      reminderSchedule.forEach((reminder) => {
+        const [hour, minute] = reminder.time.split(":").map(Number);
+        const boundaryMinutes = hour * 60 + minute;
+        if (currentMinutes >= boundaryMinutes && !state.triggered.includes(reminder.time)) {
+          state.triggered.push(reminder.time);
+          saveReminderState(state);
+          showReminder(reminder.title, reminder.message);
+        }
+      });
+    }
+
+    function initReminderChecker() {
+      checkReminders();
+      setInterval(checkReminders, 60000);
+    }
+
+    renderTimeblocks();
+    initTimeblockUpdateButtons();
+    initReminderChecker();
+</script>
+  <script src="auth.js"></script>
+</body>
+</html>

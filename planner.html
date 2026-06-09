@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .routine-card.is-completed {
+      opacity: 0.78;
+    }
+    .routine-card .right-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .routine-card .quick-actions {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .routine-card.show-actions .quick-actions {
+      display: flex;
+    }
+    .routine-card .action-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.10);
+      color: inherit;
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .routine-card .action-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+    .routine-card .action-btn.danger {
+      border-color: rgba(255, 90, 90, 0.35);
+      background: rgba(255, 90, 90, 0.12);
+    }
+    .routine-card .action-btn.danger:hover {
+      background: rgba(255, 90, 90, 0.18);
+    }
+    .routine-card .done-tick {
+      margin-left: 8px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Habitsync Routine</p>
+        <h1>Plan your day with focus</h1>
+        <p class="subtitle">Build routines, track priorities, and keep your day organized.</p>
+      </div>
+     
+    </header>
+
+    <section class="panel dashboard-panel">
+      <div class="dashboard-topbar">
+        <div>
+          <p class="eyebrow">Dashboard</p>
+          <h2>Jump to any block</h2>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <a href="timeline.html" class="dashboard-link">Preplanner</a>
+        <a href="now.html" class="dashboard-link">Time Blocks</a>
+        <a href="planner.html" class="dashboard-link">Routine Planner</a>
+        <a href="habit.html" class="dashboard-link">Habit Manager</a>
+        <a href="streak.html" class="dashboard-link">Daily Streak</a>
+        <a href="home.html" class="dashboard-link">Pomodoro Focus</a>
+      </div>
+    </section>
+
+    <main class="content-grid">
+      <section class="panel routine-form">
+        <h2>New routine</h2>
+        <p>Create a smart daily routine with reminders, duration, and priority.</p>
+
+        <form id="routineForm">
+          <label>
+            Routine name
+            <input id="routineName" type="text" placeholder="Morning stretch" required />
+          </label>
+
+          <label>
+            Category
+            <select id="routineCategory">
+              <option>Wellness</option>
+              <option>Work</option>
+              <option>Learning</option>
+              <option>Family</option>
+            </select>
+          </label>
+
+          <label>
+            Duration
+            <input id="routineDuration" type="text" placeholder="30 min" required />
+          </label>
+
+          <label class="inline-group">
+            <span>Priority</span>
+            <div>
+              <button type="button" class="tag selected" data-priority="High">High</button>
+              <button type="button" class="tag" data-priority="Medium">Medium</button>
+              <button type="button" class="tag" data-priority="Low">Low</button>
+            </div>
+          </label>
+
+          <label>
+            Notes
+            <textarea id="routineNotes" rows="4" placeholder="Add extra details..."></textarea>
+          </label>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button type="submit" class="primary-btn">Save routine</button>
+            <button type="button" class="tag" id="clearSavedRoutinesBtn">Clear saved</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel overview">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Today</p>
+            <h2>Your routines</h2>
+          </div>
+          <span class="status-pill" id="activeCountPill">0 active</span>
+        </div>
+
+        <div id="routinesList"></div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p>Completed</p>
+            <strong id="completedCount">0</strong>
+          </div>
+          <div class="stat-card">
+            <p>Pending</p>
+            <strong id="pendingCount">0</strong>
+          </div>
+          <div class="stat-card">
+            <p>Focus score</p>
+            <strong>87%</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "smartRoutinePlanner:routines:v1";
+
+    const form = document.getElementById("routineForm");
+    const nameEl = document.getElementById("routineName");
+    const categoryEl = document.getElementById("routineCategory");
+    const durationEl = document.getElementById("routineDuration");
+    const notesEl = document.getElementById("routineNotes");
+    const routinesList = document.getElementById("routinesList");
+    const activeCountPill = document.getElementById("activeCountPill");
+    const completedCount = document.getElementById("completedCount");
+    const pendingCount = document.getElementById("pendingCount");
+    const clearBtn = document.getElementById("clearSavedRoutinesBtn");
+
+    function getSelectedPriority() {
+      const selected = form.querySelector(".tag.selected[data-priority]");
+      return selected ? selected.getAttribute("data-priority") : "High";
+    }
+
+    function setSelectedPriority(priority) {
+      form.querySelectorAll(".tag[data-priority]").forEach((btn) => {
+        const isSelected = btn.getAttribute("data-priority") === priority;
+        btn.classList.toggle("selected", isSelected);
+      });
+    }
+
+    function loadRoutines() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRoutines(routines) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(routines));
+    }
+
+    function pillClass(priority) {
+      const p = (priority || "").toLowerCase();
+      if (p === "high") return "pill high";
+      if (p === "medium") return "pill medium";
+      return "pill low";
+    }
+
+    function render(routines) {
+      routinesList.innerHTML = "";
+
+      const completed = routines.filter((r) => r.completed).length;
+      const pending = routines.length - completed;
+
+      routines.forEach((r, idx) => {
+        const card = document.createElement("div");
+        card.className = "routine-card";
+        if (r.completed) card.classList.add("is-completed");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Routine: ${r.name}. Open actions.`);
+
+        const left = document.createElement("div");
+        const h3 = document.createElement("h3");
+        h3.textContent = r.name;
+        const p = document.createElement("p");
+        p.textContent = `${r.category} • ${r.duration}`;
+        left.appendChild(h3);
+        left.appendChild(p);
+
+        const rightWrap = document.createElement("div");
+        rightWrap.className = "right-side";
+
+        const actions = document.createElement("div");
+        actions.className = "quick-actions";
+
+        const completeBtn = document.createElement("button");
+        completeBtn.type = "button";
+        completeBtn.className = "action-btn";
+        completeBtn.textContent = r.completed ? "Completed" : "Complete";
+        completeBtn.setAttribute("aria-label", r.completed ? "Mark as not completed" : "Mark as completed");
+
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "action-btn danger";
+        clearBtn.textContent = "Clear";
+        clearBtn.setAttribute("aria-label", "Clear this routine");
+
+        actions.appendChild(completeBtn);
+        actions.appendChild(clearBtn);
+
+        const priorityPill = document.createElement("span");
+        priorityPill.className = pillClass(r.priority);
+        priorityPill.textContent = r.priority;
+
+        if (r.completed) {
+          const tick = document.createElement("span");
+          tick.className = "done-tick";
+          tick.textContent = "✓";
+          priorityPill.appendChild(tick);
+        }
+
+        rightWrap.appendChild(actions);
+        rightWrap.appendChild(priorityPill);
+
+        card.appendChild(left);
+        card.appendChild(rightWrap);
+        routinesList.appendChild(card);
+
+        function toggleActions() {
+          // close other open cards
+          routinesList.querySelectorAll(".routine-card.show-actions").forEach((el) => {
+            if (el !== card) el.classList.remove("show-actions");
+          });
+          card.classList.toggle("show-actions");
+        }
+
+        card.addEventListener("click", (e) => {
+          const target = e.target;
+          if (target === completeBtn || target === clearBtn) return;
+          toggleActions();
+        });
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleActions();
+          }
+        });
+
+        completeBtn.addEventListener("click", () => {
+          routines[idx].completed = !routines[idx].completed;
+          saveRoutines(routines);
+          render(routines);
+        });
+
+        clearBtn.addEventListener("click", () => {
+          routines.splice(idx, 1);
+          saveRoutines(routines);
+          render(routines);
+        });
+      });
+
+      activeCountPill.textContent = `${routines.length} active`;
+      pendingCount.textContent = String(pending);
+      completedCount.textContent = String(completed);
+    }
+
+    // Priority buttons
+    form.querySelectorAll(".tag[data-priority]").forEach((btn) => {
+      btn.addEventListener("click", () => setSelectedPriority(btn.getAttribute("data-priority")));
+    });
+
+    // Load saved routines on startup
+    let routines = loadRoutines();
+    if (routines.length === 0) {
+      // Seed a few defaults once (only when no saved schedule exists)
+      routines = [
+        { name: "Morning workout", category: "Wellness", duration: "45 min", priority: "High", notes: "", completed: false },
+        { name: "Focus session", category: "Work", duration: "90 min", priority: "Medium", notes: "", completed: false },
+        { name: "Reading time", category: "Learning", duration: "30 min", priority: "Low", notes: "", completed: false }
+      ];
+      saveRoutines(routines);
+    }
+
+    // Backfill completed flag for older saved data
+    routines.forEach((r) => {
+      if (typeof r.completed !== "boolean") r.completed = false;
+    });
+    saveRoutines(routines);
+    render(routines);
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = (nameEl.value || "").trim();
+      const category = (categoryEl.value || "").trim();
+      const duration = (durationEl.value || "").trim();
+      const notes = (notesEl.value || "").trim();
+      const priority = getSelectedPriority();
+
+      if (!name || !duration) return;
+
+      routines.unshift({ name, category, duration, priority, notes, completed: false });
+      saveRoutines(routines);
+      render(routines);
+
+      // Reset form for next entry
+      form.reset();
+      setSelectedPriority("High");
+    });
+
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      routines = [];
+      render(routines);
+      form.reset();
+      setSelectedPriority("High");
+    });
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>

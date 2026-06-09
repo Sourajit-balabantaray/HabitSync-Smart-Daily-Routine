@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Afternoon Workout - Details</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .details-wrap { max-width: 900px; margin: 0 auto; padding: 22px 18px 40px; }
+    .details-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 18px 16px; backdrop-filter: blur(6px); }
+    .details-title { margin: 0 0 6px; }
+    .details-subtitle { margin: 0 0 14px; opacity: 0.85; }
+    .details-list { margin: 0; padding-left: 18px; line-height: 1.7; }
+    .back-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .back-link { display: inline-block; text-decoration: none; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.10); color: inherit; border: 1px solid rgba(255,255,255,0.12); }
+    .back-link:hover { background: rgba(255,255,255,0.16); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="now-topbar">
+      <div>
+        <p class="eyebrow">Afternoon block (12:00 - 17:00)</p>
+        <h1>Workout (Afternoon)</h1>
+        <p class="subtitle">Training session plan.</p>
+      </div>
+    </header>
+
+    <main class="details-wrap">
+      <div class="back-row">
+        <a class="back-link" href="now.html">← Back to Now</a>
+      </div>
+
+      <section class="details-card">
+        <h2 class="details-title">Afternoon Workout Plan</h2>
+        <p class="details-subtitle">Keep energy steady:</p>
+        <ul class="details-list">
+          <li>Light snack (optional) – If you’re low on energy</li>
+          <li>Warm up – 5–8 min mobility + easy movement</li>
+          <li>Main workout – 25–45 min (strength/cardio)</li>
+          <li>Rest properly – 45–90 sec between sets</li>
+          <li>Hydrate – Small sips during training</li>
+          <li>Cool down – Stretch + slow breathing</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="home-container">
+    <div class="home-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Habitsync Routine</p>
+          <h1 class="home-title">Habitsync Routine</h1>
+          <p class="home-subtitle">Organize your day, build better habits, and stay focused</p>
+        </div>
+        <div id="homeAuthControls" class="auth-actions"></div>
+      </header>
+
+      <section class="panel dashboard-panel">
+        <div class="dashboard-topbar">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2>Jump to any block</h2>
+          </div>
+        </div>
+        <div class="dashboard-grid">
+          <a href="timeline.html" class="dashboard-link">Preplanner</a>
+          <a href="now.html" class="dashboard-link">Time Blocks</a>
+          <a href="planner.html" class="dashboard-link">Routine Planner</a>
+          <a href="habit.html" class="dashboard-link">Habit Manager</a>
+          <a href="streak.html" class="dashboard-link">Daily Streak</a>
+          <a href="notes.html" class="dashboard-link">Notes</a>
+          <a href="home.html" class="dashboard-link">Pomodoro Focus</a>
+        </div>
+      </section>
+
+      <div class="home-grid">
+        <a href="timeline.html" target="_self" class="home-card timeline-card">
+          <div class="card-icon">📅</div>
+          <h2>Preplanner</h2>
+          <p>See your entire day laid out hour by hour</p>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a href="now.html" target="_self" class="home-card timeblocks-card">
+          <div class="card-icon">🎯</div>
+          <h2>Time Blocks</h2>
+          <p>Manage routines by morning, afternoon, and evening</p>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a href="planner.html" target="_self" class="home-card routine-card">
+          <div class="card-icon">✨</div>
+          <h2>Create New Routine</h2>
+          <p>Build and schedule your daily routines</p>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a href="habit.html" class="home-card habit-card">
+          <div class="card-icon">🧠</div>
+          <h2>Habit Manager</h2>
+          <p class="subtitle">Open the habit page to add and complete tasks.</p>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a href="streak.html" class="home-card streak-card">
+          <div class="card-icon">🔥</div>
+          <h2>Daily Streak</h2>
+          <p class="subtitle">Open the streak page to review your progress.</p>
+          <span class="card-arrow">→</span>
+        </a>
+
+        <a href="notes.html" class="home-card notes-card">
+          <div class="card-icon">📝</div>
+          <h2>Notes & Reminders</h2>
+          <p class="subtitle">Save reminders with date, time, and quick notes.</p>
+          <span class="card-arrow">→</span>
+        </a>
+      </div>
+
+      <section class="panel pomodoro-block">
+        <div class="timeblock-header">
+          <h2>Pomodoro Focus</h2>
+          <span class="timeblock-time">30-minute work, 5-minute break, 20-minute long break</span>
+        </div>
+        <div class="pomodoro-card">
+          <div class="pomodoro-status">
+            <span id="pomodoroPhase">Ready</span>
+            <span id="pomodoroSessionCount">Sessions completed: 0</span>
+          </div>
+          <div class="pomodoro-timer" id="pomodoroTimer">30:00</div>
+          <div class="pomodoro-actions">
+            <button class="update-btn" type="button" id="pomodoroStartBtn">Start</button>
+            <button class="update-btn" type="button" id="pomodoroPauseBtn">Pause</button>
+            <button class="update-btn" type="button" id="pomodoroResetBtn">Reset</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const POMODORO_KEY = 'habitSyncPomodoro:v1';
+    const POMODORO_PHASES = {
+      focus: { duration: 30 * 60, label: 'Focus session' },
+      shortBreak: { duration: 5 * 60, label: 'Short break' },
+      longBreak: { duration: 20 * 60, label: 'Long break' }
+    };
+
+    function getPomodoroDuration(phase) {
+      return POMODORO_PHASES[phase]?.duration || POMODORO_PHASES.focus.duration;
+    }
+
+    function getPomodoroLabel(phase) {
+      return POMODORO_PHASES[phase]?.label || 'Ready';
+    }
+
+    function loadPomodoroState() {
+      try {
+        const raw = localStorage.getItem(POMODORO_KEY);
+        const state = raw ? JSON.parse(raw) : null;
+        return state || { running: false, phase: 'focus', secondsElapsed: 0, sessionsCompleted: 0, lastUpdated: null };
+      } catch {
+        return { running: false, phase: 'focus', secondsElapsed: 0, sessionsCompleted: 0, lastUpdated: null };
+      }
+    }
+
+    function savePomodoroState(state) {
+      localStorage.setItem(POMODORO_KEY, JSON.stringify(state));
+    }
+
+    function formatTime(seconds) {
+      const minutes = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const secs = String(seconds % 60).padStart(2, '0');
+      return `${minutes}:${secs}`;
+    }
+
+    function applyPomodoroState(state) {
+      const timerEl = document.getElementById('pomodoroTimer');
+      const phaseEl = document.getElementById('pomodoroPhase');
+      const sessionEl = document.getElementById('pomodoroSessionCount');
+      const startBtn = document.getElementById('pomodoroStartBtn');
+      const pauseBtn = document.getElementById('pomodoroPauseBtn');
+
+      const duration = getPomodoroDuration(state.phase);
+      const remaining = duration - Math.min(state.secondsElapsed, duration);
+      if (timerEl) {
+        timerEl.textContent = formatTime(remaining);
+      }
+      if (phaseEl) {
+        if (state.running) {
+          phaseEl.textContent = getPomodoroLabel(state.phase);
+        } else if (state.secondsElapsed > 0) {
+          phaseEl.textContent = `${getPomodoroLabel(state.phase)} (paused)`;
+        } else {
+          phaseEl.textContent = 'Ready';
+        }
+      }
+      if (sessionEl) {
+        sessionEl.textContent = `Sessions completed: ${state.sessionsCompleted}`;
+      }
+      if (startBtn) {
+        startBtn.textContent = state.running ? 'Running' : 'Start';
+        startBtn.disabled = state.running;
+      }
+      if (pauseBtn) {
+        pauseBtn.disabled = !state.running;
+      }
+    }
+
+    function showPomodoroReminder(completedPhase) {
+      if (completedPhase === 'focus') {
+        alert('Break time: Your 15-minute focus session is complete. Take a short break.');
+      } else if (completedPhase === 'shortBreak') {
+        alert('Break finished: Your 5-minute break is over. Resume your focus session.');
+      } else if (completedPhase === 'longBreak') {
+        alert('Long break finished: Your 20-minute rest is complete. Time to get back to work.');
+      }
+    }
+
+    function goToNextPomodoroPhase(state) {
+      if (state.phase === 'focus') {
+        state.sessionsCompleted += 1;
+        state.phase = state.sessionsCompleted % 4 === 0 ? 'longBreak' : 'shortBreak';
+      } else {
+        state.phase = 'focus';
+      }
+    }
+
+    function tickPomodoro() {
+      const state = loadPomodoroState();
+      if (!state.running) {
+        return;
+      }
+
+      const now = Date.now();
+      if (state.lastUpdated) {
+        const deltaSeconds = Math.floor((now - state.lastUpdated) / 1000);
+        if (deltaSeconds > 0) {
+          state.secondsElapsed += deltaSeconds;
+        }
+      }
+      state.lastUpdated = now;
+
+      let duration = getPomodoroDuration(state.phase);
+      while (state.secondsElapsed >= duration) {
+        state.secondsElapsed -= duration;
+        const completedPhase = state.phase;
+        goToNextPomodoroPhase(state);
+        showPomodoroReminder(completedPhase);
+        duration = getPomodoroDuration(state.phase);
+      }
+
+      savePomodoroState(state);
+      applyPomodoroState(state);
+    }
+
+    function initPomodoro() {
+      const startBtn = document.getElementById('pomodoroStartBtn');
+      const pauseBtn = document.getElementById('pomodoroPauseBtn');
+      const resetBtn = document.getElementById('pomodoroResetBtn');
+      if (!startBtn || !pauseBtn || !resetBtn) {
+        return;
+      }
+
+      let state = loadPomodoroState();
+      if (state.running && state.lastUpdated) {
+        const deltaSeconds = Math.floor((Date.now() - state.lastUpdated) / 1000);
+        if (deltaSeconds > 0) {
+          state.secondsElapsed += deltaSeconds;
+          let duration = getPomodoroDuration(state.phase);
+          while (state.secondsElapsed >= duration) {
+            state.secondsElapsed -= duration;
+            const completedPhase = state.phase;
+            goToNextPomodoroPhase(state);
+            showPomodoroReminder(completedPhase);
+            duration = getPomodoroDuration(state.phase);
+          }
+        }
+        state.lastUpdated = Date.now();
+        savePomodoroState(state);
+      }
+
+      applyPomodoroState(state);
+
+      startBtn.addEventListener('click', () => {
+        state = loadPomodoroState();
+        if (!state.running) {
+          state.running = true;
+          state.lastUpdated = Date.now();
+          savePomodoroState(state);
+          applyPomodoroState(state);
+        }
+      });
+
+      pauseBtn.addEventListener('click', () => {
+        state = loadPomodoroState();
+        if (state.running) {
+          tickPomodoro();
+          state.running = false;
+          savePomodoroState(state);
+          applyPomodoroState(state);
+        }
+      });
+
+      resetBtn.addEventListener('click', () => {
+        state = { running: false, phase: 'focus', secondsElapsed: 0, sessionsCompleted: 0, lastUpdated: null };
+        savePomodoroState(state);
+        applyPomodoroState(state);
+      });
+
+      setInterval(tickPomodoro, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initPomodoro();
+    });
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>

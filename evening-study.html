@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evening Study - Details</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .details-wrap { max-width: 900px; margin: 0 auto; padding: 22px 18px 40px; }
+    .details-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 18px 16px; backdrop-filter: blur(6px); }
+    .details-title { margin: 0 0 6px; }
+    .details-subtitle { margin: 0 0 14px; opacity: 0.85; }
+    .details-list { margin: 0; padding-left: 18px; line-height: 1.7; }
+    .back-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .back-link { display: inline-block; text-decoration: none; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.10); color: inherit; border: 1px solid rgba(255,255,255,0.12); }
+    .back-link:hover { background: rgba(255,255,255,0.16); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="now-topbar">
+      <div>
+        <p class="eyebrow">Evening block (17:00 - 23:00)</p>
+        <h1>Study (Evening)</h1>
+        <p class="subtitle">Learning & review plan.</p>
+      </div>
+    </header>
+
+    <main class="details-wrap">
+      <div class="back-row">
+        <a class="back-link" href="now.html">← Back to Now</a>
+      </div>
+
+      <section class="details-card">
+        <h2 class="details-title">Evening Study Plan</h2>
+        <p class="details-subtitle">Keep it light and finish clean:</p>
+        <ul class="details-list">
+          <li>Set one goal – Revision or practice (not both)</li>
+          <li>Short blocks – 25–40 min + 5 min break</li>
+          <li>Active recall – Flashcards / questions / summary</li>
+          <li>Low distraction – Quiet place + notifications off</li>
+          <li>Stop on time – Don’t study too late</li>
+          <li>Final recap – Write 5 key points for tomorrow</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="auth.js"></script>
+</body>
+</html>

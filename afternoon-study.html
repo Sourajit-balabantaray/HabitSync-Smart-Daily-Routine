@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Afternoon Study - Details</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .details-wrap { max-width: 900px; margin: 0 auto; padding: 22px 18px 40px; }
+    .details-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 18px 16px; backdrop-filter: blur(6px); }
+    .details-title { margin: 0 0 6px; }
+    .details-subtitle { margin: 0 0 14px; opacity: 0.85; }
+    .details-list { margin: 0; padding-left: 18px; line-height: 1.7; }
+    .back-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .back-link { display: inline-block; text-decoration: none; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.10); color: inherit; border: 1px solid rgba(255,255,255,0.12); }
+    .back-link:hover { background: rgba(255,255,255,0.16); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="now-topbar">
+      <div>
+        <p class="eyebrow">Afternoon block (12:00 - 17:00)</p>
+        <h1>Study (Afternoon)</h1>
+        <p class="subtitle">Deep work session plan.</p>
+      </div>
+    </header>
+
+    <main class="details-wrap">
+      <div class="back-row">
+        <a class="back-link" href="now.html">← Back to Now</a>
+      </div>
+
+      <section class="details-card">
+        <h2 class="details-title">Afternoon Study Plan</h2>
+        <p class="details-subtitle">Keep it focused and practical:</p>
+        <ul class="details-list">
+          <li>Quick reset – Wash face / hydrate before starting</li>
+          <li>Pick 1 main task – Don’t multitask</li>
+          <li>Deep work blocks – 45–60 min + 5–10 min break</li>
+          <li>Active learning – Practice questions / writing / coding</li>
+          <li>Distraction control – Phone away, notifications off</li>
+          <li>Mini recap – Note key points + next steps</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="auth.js"></script>
+</body>
+</html>

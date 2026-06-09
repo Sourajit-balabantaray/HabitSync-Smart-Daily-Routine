@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine - Preplanner</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .tl-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+    .tl-modal-backdrop.is-open {
+      display: flex;
+    }
+    .tl-modal {
+      width: min(560px, 100%);
+      background: #0f1220;
+      color: #eef1ff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+    .tl-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    .tl-modal-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+      letter-spacing: 0.2px;
+    }
+    .tl-modal-subtitle {
+      margin: 4px 0 0;
+      opacity: 0.85;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .tl-modal-close {
+      appearance: none;
+      border: 0;
+      background: rgba(255, 255, 255, 0.10);
+      color: #eef1ff;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .tl-modal-close:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+    .tl-modal-edit-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.10);
+      color: #eef1ff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .tl-modal-edit-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+    .tl-modal-body {
+      padding: 14px 16px 16px;
+    }
+    .tl-modal-body form {
+      display: grid;
+      gap: 14px;
+    }
+    .tl-modal-body label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+    }
+    .tl-modal-body input,
+    .tl-modal-body textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.06);
+      color: #eef1ff;
+      font: inherit;
+    }
+    .tl-modal-body textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+    .tl-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .tl-modal-action-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.10);
+      color: #eef1ff;
+      border-radius: 14px;
+      cursor: pointer;
+      padding: 10px 14px;
+      font: inherit;
+    }
+    .tl-modal-action-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+    .tl-modal-body p {
+      margin: 0 0 10px;
+      opacity: 0.95;
+      line-height: 1.55;
+    }
+    .tl-modal-body ul {
+      margin: 0;
+      padding-left: 18px;
+      opacity: 0.95;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="timeline-topbar">
+      <div>
+        <p class="eyebrow">Your Day</p>
+        <h1>Preplanner</h1>
+        <p class="subtitle">Click on any time slot to manage your routine planner.</p>
+      </div>
+      
+    </header>
+
+    <section class="panel dashboard-panel">
+      <div class="dashboard-topbar">
+        <div>
+          <p class="eyebrow">Dashboard</p>
+          <h2>Jump to any block</h2>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <a href="timeline.html" class="dashboard-link">Preplanner</a>
+        <a href="now.html" class="dashboard-link">Time Blocks</a>
+        <a href="planner.html" class="dashboard-link">Routine Planner</a>
+        <a href="habit.html" class="dashboard-link">Habit Manager</a>
+        <a href="streak.html" class="dashboard-link">Daily Streak</a>
+        <a href="home.html" class="dashboard-link">Pomodoro Focus</a>
+      </div>
+    </section>
+
+    <main class="timeline-container">
+      <div class="timeline-wrapper">
+        <div class="timeline-hours">
+          <div class="hour-marker">
+            <span class="hour-label">5:00 AM</span>
+            <div class="time-slot morning-slot" data-time="5:00 AM" data-activity="Morning Start">
+              <div class="slot-label">Morning Start</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">6:00 AM</span>
+            <div class="time-slot morning-slot" data-time="6:00 AM" data-activity="Workout">
+              <div class="slot-label">Workout</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">7:00 AM</span>
+            <div class="time-slot morning-slot" data-time="7:00 AM" data-activity="Study">
+              <div class="slot-label">Study</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">8:00 AM</span>
+            <div class="time-slot morning-slot" data-time="8:00 AM" data-activity="Breakfast & Relax">
+              <div class="slot-label">Breakfast & Relax</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">9:00 AM</span>
+            <div class="time-slot morning-slot" data-time="9:00 AM" data-activity="Focus Session">
+              <div class="slot-label">Focus Session</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">10:00 AM</span>
+            <div class="time-slot morning-slot" data-time="10:00 AM" data-activity="Study Continues">
+              <div class="slot-label">Study Continues</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">11:00 AM</span>
+            <div class="time-slot morning-slot" data-time="11:00 AM" data-activity="Break">
+              <div class="slot-label">Break</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">12:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="12:00 PM" data-activity="Lunch">
+              <div class="slot-label">Lunch</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">1:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="1:00 PM" data-activity="Afternoon Work">
+              <div class="slot-label">Afternoon Work</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">2:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="2:00 PM" data-activity="Deep Focus">
+              <div class="slot-label">Deep Focus</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">3:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="3:00 PM" data-activity="Workout">
+              <div class="slot-label">Workout</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">4:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="4:00 PM" data-activity="Study & Learn">
+              <div class="slot-label">Study & Learn</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">5:00 PM</span>
+            <div class="time-slot afternoon-slot" data-time="5:00 PM" data-activity="Wrap Up">
+              <div class="slot-label">Wrap Up</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">6:00 PM</span>
+            <div class="time-slot evening-slot" data-time="6:00 PM" data-activity="Dinner">
+              <div class="slot-label">Dinner</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">7:00 PM</span>
+            <div class="time-slot evening-slot" data-time="7:00 PM" data-activity="Evening Workout">
+              <div class="slot-label">Evening Workout</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">8:00 PM</span>
+            <div class="time-slot evening-slot" data-time="8:00 PM" data-activity="Study">
+              <div class="slot-label">Study</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">9:00 PM</span>
+            <div class="time-slot evening-slot" data-time="9:00 PM" data-activity="Relax & Meditate">
+              <div class="slot-label">Relax & Meditate</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">10:00 PM</span>
+            <div class="time-slot evening-slot" data-time="10:00 PM" data-activity="Wind Down">
+              <div class="slot-label">Wind Down</div>
+            </div>
+          </div>
+
+          <div class="hour-marker">
+            <span class="hour-label">11:00 PM</span>
+            <div class="time-slot evening-slot" data-time="11:00 PM" data-activity="Sleep Prep">
+              <div class="slot-label">Sleep Prep</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-legend">
+          <div class="legend-item">
+            <span class="legend-color morning-color"></span>
+            <span>Morning</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color afternoon-color"></span>
+            <span>Afternoon</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color evening-color"></span>
+            <span>Evening</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="tl-modal-backdrop" id="tlModalBackdrop" aria-hidden="true">
+    <div class="tl-modal" role="dialog" aria-modal="true" aria-labelledby="tlModalTitle">
+      <div class="tl-modal-header">
+        <div>
+          <h2 class="tl-modal-title" id="tlModalTitle">Activity</h2>
+          <p class="tl-modal-subtitle" id="tlModalSubtitle">Time</p>
+        </div>
+        <button class="tl-modal-edit-btn" type="button" id="tlModalEdit">Edit</button>
+        <button class="tl-modal-close" type="button" id="tlModalClose" aria-label="Close popup">×</button>
+      </div>
+      <div class="tl-modal-body" id="tlModalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const DETAILS = {
+      "Morning Start": {
+        lines: [
+          "Set the tone for the day.",
+          "Drink water, quick tidy-up, and write your top 3 goals."
+        ]
+      },
+      "Workout": {
+        lines: [
+          "Warm up for 5 minutes.",
+          "Main set: strength or cardio (25–35 min).",
+          "Cooldown + stretch (5–10 min)."
+        ]
+      },
+      "Study": {
+        lines: [
+          "Pick one topic only.",
+          "Use a 25/5 focus timer and take short notes.",
+          "End by writing 3 quick questions to revise later."
+        ]
+      },
+      "Breakfast & Relax": {
+        lines: [
+          "Eat a balanced breakfast (protein + carbs).",
+          "Keep screens low for 10 minutes to reset."
+        ]
+      },
+      "Focus Session": {
+        lines: [
+          "One important task only.",
+          "Silence notifications and keep a small to-do dump list."
+        ]
+      },
+      "Study Continues": {
+        lines: [
+          "Continue the same topic.",
+          "Do 10 minutes of active recall at the end."
+        ]
+      },
+      "Break": {
+        lines: [
+          "Stand up, walk, and hydrate.",
+          "No scrolling if you want your focus to stay strong."
+        ]
+      },
+      "Lunch": {
+        lines: [
+          "Eat light but filling.",
+          "Add veggies + water.",
+          "Take a 5–10 minute walk after."
+        ]
+      },
+      "Afternoon Work": {
+        lines: [
+          "Do admin + quick tasks.",
+          "Batch replies so they don’t steal deep focus time."
+        ]
+      },
+      "Deep Focus": {
+        lines: [
+          "Hard task block.",
+          "90 minutes max, then a real break."
+        ]
+      },
+      "Study & Learn": {
+        lines: [
+          "Revise what you learned earlier.",
+          "Practice problems > rereading."
+        ]
+      },
+      "Wrap Up": {
+        lines: [
+          "Review the day.",
+          "Plan tomorrow’s first task so mornings feel easy."
+        ]
+      },
+      "Dinner": {
+        lines: [
+          "Keep it satisfying, not too heavy.",
+          "Try to finish 2–3 hours before sleep."
+        ]
+      },
+      "Evening Workout": {
+        lines: [
+          "Keep intensity moderate.",
+          "Focus on mobility or light cardio to sleep better."
+        ]
+      },
+      "Relax & Meditate": {
+        lines: [
+          "5–10 minutes breathing.",
+          "Write one good thing that happened today."
+        ]
+      },
+      "Wind Down": {
+        lines: [
+          "Dim lights, reduce noise.",
+          "Prepare clothes/bag for tomorrow."
+        ]
+      },
+      "Sleep Prep": {
+        lines: [
+          "No caffeine late.",
+          "Phone away if possible, and read something calm."
+        ]
+      }
+    };
+
+    const backdrop = document.getElementById("tlModalBackdrop");
+    const closeBtn = document.getElementById("tlModalClose");
+    const editBtn = document.getElementById("tlModalEdit");
+    const titleEl = document.getElementById("tlModalTitle");
+    const subtitleEl = document.getElementById("tlModalSubtitle");
+    const bodyEl = document.getElementById("tlModalBody");
+
+    const TIMELINE_UPDATES_KEY = "habitSyncTimelineUpdates:v1";
+    let activeSlot = null;
+    let activeTime = "";
+    let activeActivity = "";
+
+    function loadTimelineUpdates() {
+      try {
+        const raw = localStorage.getItem(TIMELINE_UPDATES_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveTimelineUpdates(updates) {
+      localStorage.setItem(TIMELINE_UPDATES_KEY, JSON.stringify(updates));
+    }
+
+    function getTimelineUpdate(time) {
+      const updates = loadTimelineUpdates();
+      return updates[time] || null;
+    }
+
+    function applySlotUpdate(slot, update) {
+      if (!slot || !update) return;
+      if (update.activity) {
+        slot.dataset.activity = update.activity;
+        const label = slot.querySelector(".slot-label");
+        if (label) label.textContent = update.activity;
+      }
+    }
+
+    function applySavedUpdates() {
+      document.querySelectorAll(".time-slot[data-time]").forEach((slot) => {
+        const update = getTimelineUpdate(slot.dataset.time);
+        if (update) {
+          applySlotUpdate(slot, update);
+        }
+      });
+    }
+
+    function getModalDetails(activity, time) {
+      const update = getTimelineUpdate(time);
+      if (update && update.lines) {
+        return { title: update.activity || activity, lines: update.lines };
+      }
+
+      return DETAILS[activity] || { lines: ["No details added yet for this activity."] };
+    }
+
+    function renderModalContent(activity, time) {
+      const details = getModalDetails(activity, time);
+      titleEl.textContent = details.title || "Activity";
+      subtitleEl.textContent = time ? `Time: ${time}` : "";
+      bodyEl.innerHTML = "";
+
+      const p = document.createElement("p");
+      p.textContent = "Quick plan:";
+      bodyEl.appendChild(p);
+
+      const ul = document.createElement("ul");
+      for (const line of details.lines) {
+        const li = document.createElement("li");
+        li.textContent = line;
+        ul.appendChild(li);
+      }
+      bodyEl.appendChild(ul);
+      editBtn.style.display = "inline-flex";
+      editBtn.textContent = "Edit";
+    }
+
+    function openModal(activity, time, slot) {
+      activeSlot = slot;
+      activeTime = time;
+      activeActivity = activity;
+      renderModalContent(activity, time);
+      backdrop.classList.add("is-open");
+      backdrop.setAttribute("aria-hidden", "false");
+      closeBtn.focus();
+    }
+
+    function closeModal() {
+      backdrop.classList.remove("is-open");
+      backdrop.setAttribute("aria-hidden", "true");
+      activeSlot = null;
+      activeTime = "";
+      activeActivity = "";
+    }
+
+    function enterEditMode() {
+      if (!activeTime || !activeSlot) return;
+      const update = getTimelineUpdate(activeTime) || {};
+      const currentActivity = update.activity || activeActivity;
+      const currentLines = update.lines || (DETAILS[activeActivity]?.lines || ["No details added yet for this activity."]);
+
+      bodyEl.innerHTML = "";
+
+      const form = document.createElement("form");
+
+      const titleLabel = document.createElement("label");
+      titleLabel.textContent = "Activity name";
+      const titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.value = currentActivity;
+      titleInput.id = "tlEditActivity";
+      titleLabel.appendChild(titleInput);
+
+      const detailsLabel = document.createElement("label");
+      detailsLabel.textContent = "Details (one item per line)";
+      const detailsTextarea = document.createElement("textarea");
+      detailsTextarea.id = "tlEditDetails";
+      detailsTextarea.value = currentLines.join("\n");
+      detailsLabel.appendChild(detailsTextarea);
+
+      form.appendChild(titleLabel);
+      form.appendChild(detailsLabel);
+
+      const footer = document.createElement("div");
+      footer.className = "tl-modal-footer";
+
+      const cancelBtn = document.createElement("button");
+      cancelBtn.type = "button";
+      cancelBtn.className = "tl-modal-action-btn";
+      cancelBtn.textContent = "Cancel";
+      cancelBtn.addEventListener("click", () => {
+        renderModalContent(activeActivity, activeTime);
+      });
+
+      const saveBtn = document.createElement("button");
+      saveBtn.type = "button";
+      saveBtn.className = "tl-modal-action-btn";
+      saveBtn.textContent = "Save";
+      saveBtn.addEventListener("click", () => {
+        const updatedActivity = titleInput.value.trim() || activeActivity;
+        const updatedLines = detailsTextarea.value
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+        const updates = loadTimelineUpdates();
+        updates[activeTime] = {
+          activity: updatedActivity,
+          lines: updatedLines.length ? updatedLines : ["No details added yet for this activity."]
+        };
+        saveTimelineUpdates(updates);
+        applySlotUpdate(activeSlot, updates[activeTime]);
+        renderModalContent(updatedActivity, activeTime);
+      });
+
+      footer.appendChild(cancelBtn);
+      footer.appendChild(saveBtn);
+      form.appendChild(footer);
+      bodyEl.appendChild(form);
+      editBtn.style.display = "none";
+    }
+
+    document.querySelectorAll(".time-slot[data-activity]").forEach((slot) => {
+      slot.style.cursor = "pointer";
+      slot.addEventListener("click", () => {
+        const activity = slot.querySelector('.slot-label')?.textContent || slot.getAttribute("data-activity") || "";
+        const time = slot.getAttribute("data-time") || "";
+        openModal(activity, time, slot);
+      });
+    });
+
+    editBtn.addEventListener("click", enterEditMode);
+    closeBtn.addEventListener("click", closeModal);
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && backdrop.classList.contains("is-open")) closeModal();
+    });
+
+    applySavedUpdates();
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>

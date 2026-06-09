@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell login-shell" id="loginShell" style="display: none;">
+    <header class="topbar login-topbar">
+      <div>
+        <p class="eyebrow">Sign in</p>
+        <h1>Login to Habitsync Routine</h1>
+
+    <section class="panel login-panel">
+      <h2>Welcome back</h2>
+      <p>Enter a secure username and password to access Habitsync Routine.</p>
+
+      <form id="loginForm">
+        <label>
+          Username
+          <input id="loginUsername" type="text" placeholder="Enter your username" required />
+        </label>
+
+        <label>
+          Password
+          <input id="loginPassword" type="password" placeholder="Enter your password" required />
+        </label>
+
+        <button type="submit" class="primary-btn">Login</button>
+        <p class="auth-message" id="authMessage"></p>
+        <p class="auth-hint">Username must be at least 5 characters. Password must be 8+ characters and include uppercase, lowercase, a number, and a symbol.</p>
+      </form>
+    </section>
+  </div>
+
+  <div class="app-shell" id="mainShell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Habitsync Routine</p>
+        <h1>Plan your day with focus</h1>
+        <p class="subtitle">Build routines, track priorities, and keep your day organized.</p>
+      </div>
+      <div style="display: flex; gap: 14px;">
+        <a href="home.html" target="_self" class="primary-btn" style="text-decoration: none;">Home</a>
+        <a href="timeline.html" target="_self" class="primary-btn" style="text-decoration: none;">Preplanner</a>
+        <a href="now.html" target="_self" class="primary-btn" style="text-decoration: none;">Time Blocks</a>
+        <a href="planner.html" target="_self" class="primary-btn" style="text-decoration: none;">Create New Routine</a>
+      </div>
+    </header>
+
+    <main class="content-grid">
+      <section class="panel routine-form">
+        <h2>New routine</h2>
+        <p>Create a smart daily routine with reminders, duration, and priority.</p>
+
+        <form>
+          <label>
+            Routine name
+            <input type="text" placeholder="Morning stretch" />
+          </label>
+
+          <label>
+            Category
+            <select>
+              <option>Wellness</option>
+              <option>Work</option>
+              <option>Learning</option>
+              <option>Family</option>
+            </select>
+          </label>
+
+          <label>
+            Duration
+            <input type="text" placeholder="30 min" />
+          </label>
+
+          <label class="inline-group">
+            <span>Priority</span>
+            <div>
+              <button type="button" class="tag selected">High</button>
+              <button type="button" class="tag">Medium</button>
+              <button type="button" class="tag">Low</button>
+            </div>
+          </label>
+
+          <label>
+            Notes
+            <textarea rows="4" placeholder="Add extra details..."></textarea>
+          </label>
+
+          <button type="submit" class="primary-btn">Save routine</button>
+        </form>
+      </section>
+
+      <section class="panel overview">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Today</p>
+            <h2>Your routines</h2>
+          </div>
+          <span class="status-pill">5 active</span>
+        </div>
+
+        <div class="routine-card">
+          <div>
+            <h3>Morning workout</h3>
+            <p>Fitness • 45 min</p>
+          </div>
+          <span class="pill high">High</span>
+        </div>
+
+        <div class="routine-card">
+          <div>
+            <h3>Focus session</h3>
+            <p>Work • 90 min</p>
+          </div>
+          <span class="pill medium">Medium</span>
+        </div>
+
+        <div class="routine-card">
+          <div>
+            <h3>Reading time</h3>
+            <p>Learning • 30 min</p>
+          </div>
+          <span class="pill low">Low</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p>Completed</p>
+            <strong>2</strong>
+          </div>
+          <div class="stat-card">
+            <p>Pending</p>
+            <strong>3</strong>
+          </div>
+          <div class="stat-card">
+            <p>Focus score</p>
+            <strong>87%</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="auth.js"></script>
+</body>
+</html>

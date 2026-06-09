@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine - Daily Streak</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="home-container">
+    <div class="home-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Habitsync Routine</p>
+          <h1 class="home-title">Daily Streak</h1>
+          <p class="home-subtitle">Track your streak and complete today’s habits.</p>
+        </div>
+        <div id="homeAuthControls" class="auth-actions"></div>
+      </header>
+
+      <section class="panel dashboard-panel">
+        <div class="dashboard-topbar">
+          <div>
+            <p class="eyebrow">Navigation</p>
+            <h2>Move through the app</h2>
+          </div>
+        </div>
+        <div class="dashboard-grid">
+          <a href="timeline.html" class="dashboard-link">Preplanner</a>
+          <a href="now.html" class="dashboard-link">Time Blocks</a>
+          <a href="planner.html" class="dashboard-link">Routine Planner</a>
+          <a href="habit.html" class="dashboard-link">Habit Manager</a>
+          <a href="home.html" class="dashboard-link">Home</a>
+        </div>
+      </section>
+
+      <section class="home-card streak-card">
+        <div class="card-icon">🔥</div>
+        <h2>Current Streak</h2>
+        <p class="subtitle">Your streak updates automatically when all habits are done.</p>
+        <div class="streak-summary">
+          <strong id="streakCount">0</strong>
+          <span>days</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="streakProgress"></div>
+        </div>
+        <p class="subtitle" id="streakStatus">Complete habits today to keep your streak alive.</p>
+        <div class="habits-completed" id="habitsCompletedSummary"></div>
+        <button class="update-btn" type="button" id="refreshStreakBtn">Refresh</button>
+      </section>
+
+      <section class="home-card habit-card">
+        <div class="card-icon">✅</div>
+        <h2>Today's Habits</h2>
+        <p class="subtitle">Toggle habits here and watch streak progress update.</p>
+        <ul id="habitList" class="habit-list"></ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const HABITS_KEY = 'habitSyncHabits:v1';
+    const STREAK_KEY = 'habitSyncDailyStreak:v1';
+
+    function getTodayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function loadHabits() {
+      try {
+        const raw = localStorage.getItem(HABITS_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHabits(habits) {
+      localStorage.setItem(HABITS_KEY, JSON.stringify(habits));
+    }
+
+    function loadStreak() {
+      try {
+        const raw = localStorage.getItem(STREAK_KEY);
+        return raw ? JSON.parse(raw) : { count: 0, lastCompletedDate: null };
+      } catch {
+        return { count: 0, lastCompletedDate: null };
+      }
+    }
+
+    function saveStreak(streak) {
+      localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+    }
+
+    function isYesterday(dateString) {
+      if (!dateString) return false;
+      const date = new Date(dateString);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      return date.toDateString() === yesterday.toDateString();
+    }
+
+    function allHabitsCompletedToday(habits) {
+      const today = getTodayKey();
+      return habits.length > 0 && habits.every(habit => habit.completedDate === today);
+    }
+
+    function updateStreakIfNeeded(habits) {
+      const streak = loadStreak();
+      const today = getTodayKey();
+      if (!allHabitsCompletedToday(habits)) {
+        return streak;
+      }
+      if (streak.lastCompletedDate === today) {
+        return streak;
+      }
+      if (isYesterday(streak.lastCompletedDate)) {
+        streak.count += 1;
+      } else {
+        streak.count = 1;
+      }
+      streak.lastCompletedDate = today;
+      saveStreak(streak);
+      return streak;
+    }
+
+    function updateStreakDisplay(habits) {
+      const streak = allHabitsCompletedToday(habits) ? updateStreakIfNeeded(habits) : loadStreak();
+      const countEl = document.getElementById('streakCount');
+      const progressEl = document.getElementById('streakProgress');
+      const statusEl = document.getElementById('streakStatus');
+      const summaryEl = document.getElementById('habitsCompletedSummary');
+      if (!countEl || !progressEl || !statusEl || !summaryEl) return;
+
+      const today = getTodayKey();
+      const completedCount = habits.filter(habit => habit.completedDate === today).length;
+      countEl.textContent = streak.count;
+      progressEl.style.width = `${habits.length ? Math.round((completedCount / habits.length) * 100) : 0}%`;
+      summaryEl.textContent = `${completedCount} of ${habits.length} habits completed today`;
+
+      if (habits.length === 0) {
+        statusEl.textContent = 'Add a habit in the habit manager to start your streak.';
+      } else if (streak.lastCompletedDate === today) {
+        statusEl.textContent = `Great work! Your ${streak.count}-day streak is active.`;
+      } else if (isYesterday(streak.lastCompletedDate)) {
+        statusEl.textContent = 'Your streak is waiting for today — complete your remaining habits.';
+      } else {
+        statusEl.textContent = `Your streak is paused at ${streak.count} day${streak.count === 1 ? '' : 's'}. Start again today.`;
+      }
+    }
+
+    function renderHabitList(habits) {
+      const listEl = document.getElementById('habitList');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      if (habits.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'habit-item';
+        emptyItem.textContent = 'No habits yet. Add them on the Habit Manager page.';
+        listEl.appendChild(emptyItem);
+        return;
+      }
+
+      const today = getTodayKey();
+      habits.forEach((habit, index) => {
+        const item = document.createElement('li');
+        item.className = `habit-item ${habit.completedDate === today ? 'completed' : ''}`;
+        item.innerHTML = `
+          <label>
+            <input type="checkbox" data-index="${index}" ${habit.completedDate === today ? 'checked' : ''} />
+            <span>${habit.text}${habit.duration ? ` <small class="habit-duration">(${habit.duration} min)</small>` : ''}</span>
+          </label>`;
+        listEl.appendChild(item);
+      });
+    }
+
+    function toggleHabitComplete(index) {
+      const habits = loadHabits();
+      const today = getTodayKey();
+      const habit = habits[index];
+      if (!habit) return;
+      habit.completedDate = habit.completedDate === today ? null : today;
+      saveHabits(habits);
+      refreshPage();
+    }
+
+    function refreshPage() {
+      const habits = loadHabits();
+      renderHabitList(habits);
+      updateStreakDisplay(habits);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshPage();
+      const listEl = document.getElementById('habitList');
+      const refreshBtn = document.getElementById('refreshStreakBtn');
+      if (listEl) {
+        listEl.addEventListener('change', event => {
+          const target = event.target;
+          if (target.matches('input[type="checkbox"]')) {
+            const index = Number(target.dataset.index);
+            toggleHabitComplete(index);
+          }
+        });
+      }
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', refreshPage);
+      }
+    });
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>

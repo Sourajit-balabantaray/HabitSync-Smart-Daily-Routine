@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habitsync Routine - Notes</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="home-container">
+    <div class="home-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Habitsync Routine</p>
+          <h1 class="home-title">Notes & Reminders</h1>
+          <p class="home-subtitle">Save a quick note, choose a date and time, and get a reminder when it is due.</p>
+        </div>
+        <div id="homeAuthControls" class="auth-actions"></div>
+      </header>
+
+      <section class="panel dashboard-panel">
+        <div class="dashboard-topbar">
+          <div>
+            <p class="eyebrow">Notes</p>
+            <h2>Reminders for the future</h2>
+          </div>
+          <a href="streak.html" class="dashboard-link">Open streak</a>
+        </div>
+      </section>
+
+      <section class="panel notes-panel">
+        <div class="notes-form">
+          <div class="notes-form-row">
+            <input id="noteDate" type="date" aria-label="Note date" />
+            <input id="noteTime" type="time" aria-label="Note time" />
+          </div>
+          <textarea id="noteText" placeholder="Type your note here..." aria-label="Note text"></textarea>
+          <div class="notes-form-footer">
+            <label>
+              <input id="noteReminder" type="checkbox" checked /> Reminder enabled
+            </label>
+            <button class="update-btn" type="button" id="saveNoteBtn">Save note</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel notes-panel">
+        <div class="dashboard-topbar">
+          <div>
+            <p class="eyebrow">Saved notes</p>
+            <h2>Upcoming reminders</h2>
+          </div>
+        </div>
+        <ul class="note-list" id="noteList"></ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const NOTES_KEY = 'habitSyncNotes:v1';
+    const CHECK_INTERVAL = 60 * 1000;
+
+    function loadNotes() {
+      try {
+        const raw = localStorage.getItem(NOTES_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveNotes(notes) {
+      localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+    }
+
+    function createNoteObject(text, date, time, reminder) {
+      const trimmed = text.trim();
+      const due = date && time ? new Date(`${date}T${time}:00`) : null;
+      return {
+        id: Date.now(),
+        text: trimmed,
+        due: due ? due.toISOString() : null,
+        reminder: Boolean(reminder),
+        createdAt: new Date().toISOString(),
+        notified: false
+      };
+    }
+
+    function formatDueLabel(note) {
+      if (!note.due) return 'No date set';
+      const date = new Date(note.due);
+      return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function renderNotes() {
+      const noteList = document.getElementById('noteList');
+      if (!noteList) return;
+
+      const notes = loadNotes().sort((a, b) => {
+        if (!a.due) return 1;
+        if (!b.due) return -1;
+        return new Date(a.due) - new Date(b.due);
+      });
+
+      noteList.innerHTML = '';
+      if (notes.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'note-item';
+        empty.textContent = 'No notes yet. Add one to set a reminder.';
+        noteList.appendChild(empty);
+        return;
+      }
+
+      const now = new Date();
+      notes.forEach(note => {
+        const dueDate = note.due ? new Date(note.due) : null;
+        const isDue = dueDate && now >= dueDate;
+
+        const item = document.createElement('li');
+        item.className = `note-item${isDue ? ' due' : ''}`;
+        item.innerHTML = `
+          <div>${note.text || '<em>Untitled note</em>'}</div>
+          <div class="note-meta">
+            <span class="note-chip">${note.reminder ? 'Reminder on' : 'Note only'}</span>
+            <span>${formatDueLabel(note)}</span>
+            ${isDue ? '<span class="note-chip">Due now</span>' : ''}
+          </div>
+          <div class="note-actions">
+            <button class="delete" type="button" data-id="${note.id}">Delete</button>
+          </div>
+        `;
+        noteList.appendChild(item);
+      });
+    }
+
+    function addNote() {
+      const textInput = document.getElementById('noteText');
+      const dateInput = document.getElementById('noteDate');
+      const timeInput = document.getElementById('noteTime');
+      const reminderCheckbox = document.getElementById('noteReminder');
+      if (!textInput || !dateInput || !timeInput || !reminderCheckbox) return;
+
+      const text = textInput.value;
+      const date = dateInput.value;
+      const time = timeInput.value;
+      const reminder = reminderCheckbox.checked;
+
+      if (!text.trim()) {
+        alert('Please enter a note before saving.');
+        return;
+      }
+
+      const notes = loadNotes();
+      notes.unshift(createNoteObject(text, date, time, reminder));
+      saveNotes(notes);
+      textInput.value = '';
+      dateInput.value = '';
+      timeInput.value = '';
+      reminderCheckbox.checked = true;
+      renderNotes();
+      checkReminders();
+    }
+
+    function deleteNote(id) {
+      const notes = loadNotes().filter(note => String(note.id) !== String(id));
+      saveNotes(notes);
+      renderNotes();
+    }
+
+    function checkReminders() {
+      const notes = loadNotes();
+      const now = new Date();
+      let updated = false;
+      notes.forEach(note => {
+        if (!note.reminder || note.notified || !note.due) return;
+        const dueDate = new Date(note.due);
+        if (now >= dueDate) {
+          note.notified = true;
+          updated = true;
+          alert(`Reminder: ${note.text}`);
+        }
+      });
+      if (updated) saveNotes(notes);
+      renderNotes();
+    }
+
+    function initNotesPage() {
+      const saveBtn = document.getElementById('saveNoteBtn');
+      const noteList = document.getElementById('noteList');
+      if (saveBtn) saveBtn.addEventListener('click', addNote);
+      if (noteList) {
+        noteList.addEventListener('click', event => {
+          const button = event.target.closest('button[data-id]');
+          if (!button) return;
+          deleteNote(button.dataset.id);
+        });
+      }
+      renderNotes();
+      checkReminders();
+      setInterval(checkReminders, CHECK_INTERVAL);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNotesPage);
+    } else {
+      initNotesPage();
+    }
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>
