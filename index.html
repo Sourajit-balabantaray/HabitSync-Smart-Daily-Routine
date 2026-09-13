@@ -3,146 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habitsync Routine</title>
+  <title>HabitSync Routine</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell login-shell" id="loginShell" style="display: none;">
-    <header class="topbar login-topbar">
-      <div>
-        <p class="eyebrow">Sign in</p>
-        <h1>Login to Habitsync Routine</h1>
+    <div class="auth-layout">
+      <section class="auth-hero">
+        <p class="eyebrow">HabitSync</p>
+        <h1>Build a better day, one routine at a time.</h1>
+        <p class="auth-hero-copy">Track your habits, plan your time, and stay consistent with a simple routine system that helps you focus.</p>
+        <ul class="feature-list">
+          <li>Smart daily routine planning</li>
+          <li>Focus sessions and time blocks</li>
+          <li>Notes, streaks, and habit tracking</li>
+        </ul>
+      </section>
 
-    <section class="panel login-panel">
-      <h2>Welcome back</h2>
-      <p>Enter a secure username and password to access Habitsync Routine.</p>
+      <section class="panel auth-card">
+        <div class="auth-tabs" role="tablist" aria-label="Authentication panel tabs">
+          <button type="button" class="auth-tab is-active" data-auth-mode="login" aria-selected="true">Login</button>
+          <button type="button" class="auth-tab" data-auth-mode="signup" aria-selected="false">Sign up</button>
+        </div>
 
-      <form id="loginForm">
-        <label>
-          Username
-          <input id="loginUsername" type="text" placeholder="Enter your username" required />
-        </label>
+        <div class="auth-form-panel" id="loginPanel">
+          <h2>Welcome back</h2>
+          <p>Log in to continue your routine.</p>
 
-        <label>
-          Password
-          <input id="loginPassword" type="password" placeholder="Enter your password" required />
-        </label>
+          <form id="loginForm" novalidate>
+            <label>
+              Username
+              <input id="loginUsername" type="text" placeholder="Enter your username" required />
+            </label>
 
-        <button type="submit" class="primary-btn">Login</button>
+            <label>
+              Password
+              <input id="loginPassword" type="password" placeholder="Enter your password" required />
+            </label>
+
+            <button type="submit" class="primary-btn">Login</button>
+          </form>
+        </div>
+
+        <div class="auth-form-panel" id="signupPanel" hidden>
+          <h2>Create account</h2>
+          <p>Start planning your next productive day.</p>
+
+          <form id="signupForm" novalidate>
+            <label>
+              Username
+              <input id="signupUsername" type="text" placeholder="Choose a username" required />
+            </label>
+
+            <label>
+              Password
+              <input id="signupPassword" type="password" placeholder="Create a strong password" required />
+            </label>
+
+            <label>
+              Confirm password
+              <input id="signupConfirmPassword" type="password" placeholder="Repeat your password" required />
+            </label>
+
+            <button type="submit" class="primary-btn">Create account</button>
+          </form>
+        </div>
+
         <p class="auth-message" id="authMessage"></p>
         <p class="auth-hint">Username must be at least 5 characters. Password must be 8+ characters and include uppercase, lowercase, a number, and a symbol.</p>
-      </form>
-    </section>
+      </section>
+    </div>
   </div>
 
   <div class="app-shell" id="mainShell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Habitsync Routine</p>
+        <p class="eyebrow">HabitSync Routine</p>
         <h1>Plan your day with focus</h1>
         <p class="subtitle">Build routines, track priorities, and keep your day organized.</p>
       </div>
-      <div style="display: flex; gap: 14px;">
+      <div style="display: flex; gap: 14px; flex-wrap: wrap;">
         <a href="home.html" target="_self" class="primary-btn" style="text-decoration: none;">Home</a>
         <a href="timeline.html" target="_self" class="primary-btn" style="text-decoration: none;">Preplanner</a>
         <a href="now.html" target="_self" class="primary-btn" style="text-decoration: none;">Time Blocks</a>
         <a href="planner.html" target="_self" class="primary-btn" style="text-decoration: none;">Create New Routine</a>
       </div>
     </header>
-
-    <main class="content-grid">
-      <section class="panel routine-form">
-        <h2>New routine</h2>
-        <p>Create a smart daily routine with reminders, duration, and priority.</p>
-
-        <form>
-          <label>
-            Routine name
-            <input type="text" placeholder="Morning stretch" />
-          </label>
-
-          <label>
-            Category
-            <select>
-              <option>Wellness</option>
-              <option>Work</option>
-              <option>Learning</option>
-              <option>Family</option>
-            </select>
-          </label>
-
-          <label>
-            Duration
-            <input type="text" placeholder="30 min" />
-          </label>
-
-          <label class="inline-group">
-            <span>Priority</span>
-            <div>
-              <button type="button" class="tag selected">High</button>
-              <button type="button" class="tag">Medium</button>
-              <button type="button" class="tag">Low</button>
-            </div>
-          </label>
-
-          <label>
-            Notes
-            <textarea rows="4" placeholder="Add extra details..."></textarea>
-          </label>
-
-          <button type="submit" class="primary-btn">Save routine</button>
-        </form>
-      </section>
-
-      <section class="panel overview">
-        <div class="section-header">
-          <div>
-            <p class="eyebrow">Today</p>
-            <h2>Your routines</h2>
-          </div>
-          <span class="status-pill">5 active</span>
-        </div>
-
-        <div class="routine-card">
-          <div>
-            <h3>Morning workout</h3>
-            <p>Fitness • 45 min</p>
-          </div>
-          <span class="pill high">High</span>
-        </div>
-
-        <div class="routine-card">
-          <div>
-            <h3>Focus session</h3>
-            <p>Work • 90 min</p>
-          </div>
-          <span class="pill medium">Medium</span>
-        </div>
-
-        <div class="routine-card">
-          <div>
-            <h3>Reading time</h3>
-            <p>Learning • 30 min</p>
-          </div>
-          <span class="pill low">Low</span>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <p>Completed</p>
-            <strong>2</strong>
-          </div>
-          <div class="stat-card">
-            <p>Pending</p>
-            <strong>3</strong>
-          </div>
-          <div class="stat-card">
-            <p>Focus score</p>
-            <strong>87%</strong>
-          </div>
-        </div>
-      </section>
-    </main>
   </div>
   <script src="auth.js"></script>
 </body>

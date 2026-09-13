@@ -1,5 +1,9 @@
 const AUTH_KEY = 'habitSyncAuth';
+const USERS_KEY = 'habitSyncUsers:v1';
 const THEME_KEY = 'habitSyncTheme:v1';
+const LOGIN_ATTEMPTS_KEY = 'habitSyncLoginAttempts:v1';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 60 * 1000;
 
 function getPageName() {
   const page = window.location.pathname.split('/').pop();
@@ -12,6 +16,10 @@ function getAuth() {
   } catch {
     return null;
   }
+}
+
+function saveAuth(data) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify(data));
 }
 
 function getSavedTheme() {
@@ -72,12 +80,18 @@ function initTheme() {
   renderThemeToggle();
 }
 
-const LOGIN_ATTEMPTS_KEY = 'habitSyncLoginAttempts:v1';
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_DURATION_MS = 60 * 1000;
+function getUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_KEY);
+    const users = raw ? JSON.parse(raw) : [];
+    return Array.isArray(users) ? users : [];
+  } catch {
+    return [];
+  }
+}
 
-function saveAuth(data) {
-  localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
 function getLoginAttemptState() {
@@ -124,7 +138,7 @@ function isAuthenticated() {
 }
 
 function isUsernameValid(username) {
-  return typeof username === 'string' && username.trim().length >= 5 && /^[A-Za-z0-9._-]+$/.test(username);
+  return typeof username === 'string' && username.trim().length >= 5 && /^[A-Za-z0-9._-]+$/.test(username.trim());
 }
 
 function isPasswordStrong(password) {
@@ -137,40 +151,86 @@ function isPasswordStrong(password) {
 }
 
 function getLoginValidationError(username, password) {
-  if (!username || !password) {
+  const value = typeof username === 'string' ? username.trim() : '';
+  if (!value || !password) {
     return 'Please enter both username and password.';
   }
-  if (username.length < 5) {
+  if (value.length < 5) {
     return 'Username must be at least 5 characters.';
   }
-  if (!/^[A-Za-z0-9._-]+$/.test(username)) {
+  if (!/^[A-Za-z0-9._-]+$/.test(value)) {
     return 'Username may only include letters, numbers, dots, underscores, or hyphens.';
   }
-  if (password.length < 8) {
-    return 'Password must be at least 8 characters.';
+  if (!isPasswordStrong(password)) {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters.';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must include at least one uppercase letter.';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must include at least one lowercase letter.';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must include at least one number.';
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+      return 'Password must include at least one special character.';
+    }
   }
-  if (!/[A-Z]/.test(password)) {
-    return 'Password must include at least one uppercase letter.';
+  return '';
+}
+
+function getSignupValidationError(username, password, confirmPassword) {
+  const value = typeof username === 'string' ? username.trim() : '';
+  if (!value || !password || !confirmPassword) {
+    return 'Please complete all sign up fields.';
   }
-  if (!/[a-z]/.test(password)) {
-    return 'Password must include at least one lowercase letter.';
+  const loginError = getLoginValidationError(value, password);
+  if (loginError) {
+    return loginError;
   }
-  if (!/[0-9]/.test(password)) {
-    return 'Password must include at least one number.';
+  if (password !== confirmPassword) {
+    return 'Passwords do not match.';
   }
-  if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
-    return 'Password must include at least one special character.';
+  const existingUsers = getUsers();
+  const isTaken = existingUsers.some((entry) => entry.username.toLowerCase() === value.toLowerCase());
+  if (isTaken) {
+    return 'This username is already taken.';
   }
   return '';
 }
 
 function login(username, password) {
-  if (!isUsernameValid(username) || !isPasswordStrong(password)) {
+  const trimmedUsername = typeof username === 'string' ? username.trim() : '';
+  if (!isUsernameValid(trimmedUsername) || !isPasswordStrong(password)) {
     return false;
   }
-  saveAuth({ username: username.trim(), loggedAt: Date.now() });
+
+  const users = getUsers();
+  const matchingUser = users.find((user) => user.username.toLowerCase() === trimmedUsername.toLowerCase());
+  if (!matchingUser || matchingUser.password !== password) {
+    return false;
+  }
+
+  saveAuth({ username: matchingUser.username, loggedAt: Date.now() });
   clearLoginAttempts();
   return true;
+}
+
+function registerUser(username, password, confirmPassword) {
+  const trimmedUsername = typeof username === 'string' ? username.trim() : '';
+  const error = getSignupValidationError(trimmedUsername, password, confirmPassword);
+  if (error) {
+    return { success: false, error };
+  }
+
+  const users = getUsers();
+  users.push({ username: trimmedUsername, password });
+  saveUsers(users);
+  saveAuth({ username: trimmedUsername, loggedAt: Date.now() });
+  clearLoginAttempts();
+  return { success: true, username: trimmedUsername };
 }
 
 function logout() {
@@ -258,6 +318,21 @@ function renderLoginAuthControls() {
   container.appendChild(signInText);
 }
 
+function setAuthMode(mode) {
+  const loginPanel = document.getElementById('loginPanel');
+  const signupPanel = document.getElementById('signupPanel');
+  const tabs = document.querySelectorAll('.auth-tab');
+
+  if (loginPanel) loginPanel.hidden = mode !== 'login';
+  if (signupPanel) signupPanel.hidden = mode !== 'signup';
+
+  tabs.forEach((tab) => {
+    const isActive = tab.dataset.authMode === mode;
+    tab.classList.toggle('is-active', isActive);
+    tab.setAttribute('aria-selected', String(isActive));
+  });
+}
+
 function initLoginPage() {
   const loginShell = document.getElementById('loginShell');
   const mainShell = document.getElementById('mainShell');
@@ -270,44 +345,81 @@ function initLoginPage() {
 
   renderLoginAuthControls();
 
-  const loginForm = document.getElementById('loginForm');
   const message = document.getElementById('authMessage');
-  if (!loginForm || !message) {
-    return;
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const tabs = document.querySelectorAll('.auth-tab');
+
+  if (tabs.length) {
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        if (message) {
+          message.textContent = '';
+        }
+        setAuthMode(tab.dataset.authMode);
+      });
+    });
   }
 
   if (isAuthenticated()) {
-    const auth = getAuth();
-    message.textContent = `Already signed in as ${auth.username}. Use Logout to switch accounts.`;
+    if (message) {
+      const auth = getAuth();
+      message.textContent = `Already signed in as ${auth.username}. Use Logout to switch accounts.`;
+    }
   }
 
-  loginForm.addEventListener('submit', (event) => {
-    event.preventDefault();
+  if (loginForm) {
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
 
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
+      if (isLoginLockedOut()) {
+        message.textContent = getLockoutMessage();
+        return;
+      }
 
-    if (isLoginLockedOut()) {
-      message.textContent = getLockoutMessage();
-      return;
-    }
+      const validationError = getLoginValidationError(username, password);
+      if (validationError) {
+        registerFailedLoginAttempt();
+        message.textContent = validationError;
+        return;
+      }
 
-    const validationError = getLoginValidationError(username, password);
-    if (validationError) {
-      registerFailedLoginAttempt();
-      message.textContent = validationError;
-      return;
-    }
+      if (!login(username, password)) {
+        registerFailedLoginAttempt();
+        message.textContent = getLockoutMessage() || 'Invalid username or password. Please try again.';
+        return;
+      }
 
-    if (!login(username, password)) {
-      registerFailedLoginAttempt();
-      message.textContent = getLockoutMessage() || 'Login failed. Try again.';
-      return;
-    }
+      if (message) message.textContent = '';
+      window.location.href = 'home.html';
+    });
+  }
 
-    message.textContent = '';
-    window.location.href = 'home.html';
-  });
+  if (signupForm) {
+    signupForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('signupUsername').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const confirmPassword = document.getElementById('signupConfirmPassword').value.trim();
+
+      const result = registerUser(username, password, confirmPassword);
+      if (!result.success) {
+        message.textContent = result.error;
+        return;
+      }
+
+      if (message) {
+        message.textContent = 'Account created successfully. Redirecting...';
+      }
+      setTimeout(() => {
+        window.location.href = 'home.html';
+      }, 600);
+    });
+  }
+
+  setAuthMode('login');
 }
 
 function initAuth() {
